@@ -12,7 +12,7 @@ size_t WriteCallback(
 
 ) {
     // bytes received calc
-    size_t total = size * memb;
+    size_t total = size * nmemb;
 
     string* response = static_cast<string*>(userp);
 
@@ -33,14 +33,14 @@ string callAPI(const string& url) {
     string response;
     
     // tell libcurl which URL we want to request
-    curl_easy_setop(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
     // tell libcurl which function should handle incoming 
     // request data
-    curl_easy_setop(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
     
     // tell libcurl what data we want to give to writecallback
-    curl_easy_setop(curl, CURLOPT_WRITEDATA, &response);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
     
 
     // perform the HTTP request
