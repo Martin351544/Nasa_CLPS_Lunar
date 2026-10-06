@@ -28,19 +28,17 @@ int main(int argc, char* argv[]) {
     cout << "Date: " << date << '\n';
     cout << "Time: " << time << '\n';
 
-    /*
-    Build the API URL here.
 
-    For now this is just an example URL.
-
-    We will replace the values below with the
-    actual NASA/JPL API parameters once we decide
-    exactly what lunar data your project needs.
-    */
-
+    // build API url
     string url =
         "https://ssd.jpl.nasa.gov/api/horizons.api"
-        "?format=json";
+        "?format=json"
+        "&COMMAND='301'"
+        "&EPHEM_TYPE='VECTORS'"
+        "&CENTER='500@399'"
+        "&START_TIME='" + date + " " + time + "'"
+        "&STOP_TIME='" + date + " " + time + "'"
+        "&STEP_SIZE='1%20h'";
 
     // call the func
     string response = callAPI(url);
