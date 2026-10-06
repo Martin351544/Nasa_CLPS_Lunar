@@ -14,23 +14,23 @@
 <!--take the inputs-->
 <form method="POST"> 
     <lable>input the longitude: </lable>
-    <input type="number" name="Longitude">
+    <input type="number" name="Longitude" step="any">
     
     <br></br>
     
        
     <lable>input the latitude: </lable>
-    <input type="number" name="Latitude">
+    <input type="number" name="Latitude" step="any">
     
     <br></br>
            
     <lable>input the date: </lable>
-    <input type="number" name="Date">
+    <input type="date" name="Date">
     
     <br></br>
 
     <lable>input the time: </lable>
-    <input type="number" name="Time">
+    <input type="time" name="Time">
     
     <br></br>
 
@@ -40,18 +40,30 @@
 </form>
 
 <?php
-// handle input the longitude, latitude, date and time
-$latitude = $_POST["Latitude"];
-$longitude = $_POST["Longitude"];
-$date = $_POST["Date"];
-$time = $_POST["Time"];
-$conf = $_POST["operation"];
 
-if ($operation == "Conf") {
-    // to be implimented call the c++ calculate function 
-    // the calculate function will also use the API
-} 
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $latitude = $_POST["Latitude"];
+    $longitude = $_POST["Longitude"];
+    $date = $_POST["Date"];
+    $time = $_POST["Time"];
+    $operation = $_POST["operation"];
+
+    if ($operation == "Conf") {
+
+        $output = shell_exec(
+            "../backend/calculate " .
+            escapeshellarg($latitude) . " " .
+            escapeshellarg($longitude) . " " .
+            escapeshellarg($date) . " " .
+            escapeshellarg($time)
+        );
+
+        echo "<pre>";
+        echo htmlspecialchars($output);
+        echo "</pre>";
+    }
+}
 ?>
-
 </body>
 </html>

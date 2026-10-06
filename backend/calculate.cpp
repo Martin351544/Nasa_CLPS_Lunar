@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
         "&STOP_TIME=" + stopDate + "%20" + stopTime +
         "&STEP_SIZE=1%20h";
 
-    cout << "DEBUG URL " << url << endl; // debug line
+    cout << "DEBUG URL " << url << endl;
 
     // build API url
     // call the func
