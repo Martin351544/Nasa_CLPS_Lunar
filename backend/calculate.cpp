@@ -106,24 +106,42 @@ int main(int argc, char* argv[]) {
     cout << "Start: " << date << " " << time << '\n';
     cout << "Stop:  " << stopDate << " " << stopTime << '\n';
 
-    // Create NASA Horizons URL
-    string url =
+    // Create NASA Horizons URL for the sun and the earth
+    string SunUrl =
         "https://ssd.jpl.nasa.gov/api/horizons.api"
         "?format=json"
-        "&COMMAND=301"
-        "&EPHEM_TYPE=VECTORS"
-        "&CENTER=500%40399"
-        "&START_TIME=" + date + "%20" + time +
-        "&STOP_TIME=" + stopDate + "%20" + stopTime +
-        "&STEP_SIZE=1%20h";
+        "&COMMAND='10'"
+        "&EPHEM_TYPE='OBSERVER'"
+        "&CENTER='coord@301'"
+        "&COORD_TYPE='GEODETIC'"
+        "&SITE_COORD='" + to_string(longitude) + "," +
+                           to_string(latitude) + ",0'"
+        "&START_TIME='" + date + "%20" + time + "'"
+        "&STOP_TIME='" + stopDate + "%20" + stopTime + "'"
+        "&STEP_SIZE='1%20h'"
+        "&QUANTITIES='4'";   
+    
+    string EarthUrl =
+        "https://ssd.jpl.nasa.gov/api/horizons.api"
+        "?format=json"
+        "&COMMAND='399'"
+        "&EPHEM_TYPE='OBSERVER'"
+        "&CENTER='coord@301'"
+        "&COORD_TYPE='GEODETIC'"
+        "&SITE_COORD='" + to_string(longitude) + "," +
+                           to_string(latitude) + ",0'"
+        "&START_TIME='" + date + "%20" + time + "'"
+        "&STOP_TIME='" + stopDate + "%20" + stopTime + "'"
+        "&STEP_SIZE='1%20h'"
+        "&QUANTITIES='4'";
 
-    cout << "DEBUG URL " << url << endl;
+    cout << "DEBUG SUN URL " << SunUrl << endl;
+    cout << "DEBUG EARTH URL " << EarthUrl << endl;
 
     // build API url
-    // call the func
-    string response = callAPI(url);
+    // call the API for the sunUrl
+    string SunResponse = callAPI(SunUrl);
+    string EarthResponse = callAPI(EarthUrl);
 
-    cout << response << '\n'; // later we will parse the json and output it on the site
-    
     return 0;
 }

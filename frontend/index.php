@@ -48,21 +48,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $date = $_POST["Date"];
     $time = $_POST["Time"];
     $operation = $_POST["operation"];
+    
+    try {
+        if ($operation == "Conf") {
 
-    if ($operation == "Conf") {
+            $output = shell_exec(
+                "../backend/calculate " .
+                escapeshellarg($latitude) . " " .
+                escapeshellarg($longitude) . " " .
+                escapeshellarg($date) . " " .
+                escapeshellarg($time)
+            );
 
-        $output = shell_exec(
-            "../backend/calculate " .
-            escapeshellarg($latitude) . " " .
-            escapeshellarg($longitude) . " " .
-            escapeshellarg($date) . " " .
-            escapeshellarg($time)
-        );
-
-        echo "<pre>";
-        echo htmlspecialchars($output);
-        echo "</pre>";
-    }
+            echo "<pre>";
+            echo htmlspecialchars($output);
+            echo "</pre>";
+        }
+    } catch(Exception $e) {
+            echo "ERROR: " . $e->getMessage();
+    } 
 }
 ?>
 </body>
