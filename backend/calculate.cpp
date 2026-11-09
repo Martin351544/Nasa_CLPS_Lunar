@@ -1,70 +1,29 @@
 #include<bits/stdc++.h>
 #include "api.hpp"
+#include <nlohmann/json.hpp> 
 
 using namespace std;
 
-string addOneDay(string date)
-{
-    int year = stoi(date.substr(0, 4));
-    int month = stoi(date.substr(5, 2));
-    int day = stoi(date.substr(8, 2));
+string addOneMinute(string time) {
+    int hours = stoi(time.substr(0, 2));
+    int minutes = stoi(time.substr(3, 2));
 
-    day++;
+    minutes++;
 
-    // Days in each month
-    int daysInMonth[] = {
-        31, 28, 31, 30, 31, 30,
-        31, 31, 30, 31, 30, 31
-    };
-
-    // Leap year
-    if (month == 2 &&
-        (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)))
-    {
-        daysInMonth[1] = 29;
+    if (minutes == 60) {
+        minutes = 0;
+        hours++;
     }
 
-    // If we passed the end of the month
-    if (day > daysInMonth[month - 1])
-    {
-        day = 1;
-        month++;
-
-        // If we passed December
-        if (month > 12)
-        {
-            month = 1;
-            year++;
-        }
+    if (hours == 24) {
+        hours = 0;
     }
 
-    // Rebuild YYYY-MM-DD
     string result =
-        to_string(year) + "-" +
-        (month < 10 ? "0" : "") + to_string(month) + "-" +
-        (day < 10 ? "0" : "") + to_string(day);
+        (hours < 10 ? "0" : "") + to_string(hours) + ":" +
+        (minutes < 10 ? "0" : "") + to_string(minutes);
 
     return result;
-}
-
-// adds 1 hour to get the stop time the API needs
-string addOneHour(string date, string time) {
-    int hour = stoi(time.substr(0, 2));
-    int min = stoi(time.substr(3, 2));
-
-    hour ++;
-
-    if (hour >= 24) {
-        hour = 0;
-        
-        date = addOneDay(date);
-    }
-
-    string stopTime = (hour < 10? "0": "") + to_string(hour) + 
-        ":" + 
-        (min < 10 ? "0" : "") + to_string(min);
-
-    return date + " " + stopTime;
 }
 
 int main(int argc, char* argv[]) {
@@ -93,19 +52,6 @@ int main(int argc, char* argv[]) {
     string date = argv[3];
     string time = argv[4];
 
-    // calc stop time & date
-    string stopDateTime = addOneHour(date, time);
-
-    // Split stopDateTime into date and time
-    string stopDate = stopDateTime.substr(0, 10);
-    string stopTime = stopDateTime.substr(11, 5);
-
-    // Print the received values for testing.
-    cout << "Latitude: " << latitude << '\n';
-    cout << "Longitude: " << longitude << '\n';
-    cout << "Start: " << date << " " << time << '\n';
-    cout << "Stop:  " << stopDate << " " << stopTime << '\n';
-
     // Create NASA Horizons URL for the sun and the earth
     string SunUrl =
         "https://ssd.jpl.nasa.gov/api/horizons.api"
@@ -117,7 +63,7 @@ int main(int argc, char* argv[]) {
         "&SITE_COORD='" + to_string(longitude) + "," +
                            to_string(latitude) + ",0'"
         "&START_TIME='" + date + "%20" + time + "'"
-        "&STOP_TIME='" + stopDate + "%20" + stopTime + "'"
+        "&STOP_TIME='" + date + "%20" + addOneMinute(time) + "'"
         "&STEP_SIZE='1%20h'"
         "&QUANTITIES='4'";   
     
@@ -131,17 +77,27 @@ int main(int argc, char* argv[]) {
         "&SITE_COORD='" + to_string(longitude) + "," +
                            to_string(latitude) + ",0'"
         "&START_TIME='" + date + "%20" + time + "'"
-        "&STOP_TIME='" + stopDate + "%20" + stopTime + "'"
+        "&STOP_TIME='" + date + "%20" + addOneMinute(time) + "'"
         "&STEP_SIZE='1%20h'"
         "&QUANTITIES='4'";
 
-    cout << "DEBUG SUN URL " << SunUrl << endl;
-    cout << "DEBUG EARTH URL " << EarthUrl << endl;
 
     // build API url
     // call the API for the sunUrl
     string SunResponse = callAPI(SunUrl);
     string EarthResponse = callAPI(EarthUrl);
+   
 
+    nlohmann::json sunData = nlohmann::json::parse(SunResponse);
+    nlohmann::json earthData = nlohmann::json::parse(EarthResponse);
+        
+    string sunResult = sunData.at("result").get<string>();
+    string earthResult = earthData.at("result").get<string>();
+
+    nlohmann::json output;
+    output["sun"] = sunResult;
+    output["earth"] = earthResult;
+
+    cout << output.dump() << endl;
     return 0;
 }
